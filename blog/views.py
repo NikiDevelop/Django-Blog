@@ -35,8 +35,6 @@ def detallePost(request, post_id):
         return render(request, 'post.html', {'post':post} )
 
 
-
-
     
 #se pasa el mismo nombre que hemos creado en categoría, 
 #y así conseguimos todos los posts que su categoría sea Generales
@@ -54,8 +52,8 @@ def cine(request):
             Q(descripcion__icontains = queryset)
         ).distinct
 
-
     return render(request, 'generales.html', {'posts':posts})
+    
 
 def programacion(request):
     #__iexact omite mayúsculas y minúsculas
@@ -65,15 +63,14 @@ def programacion(request):
     page = request.GET.get('page')
     posts = paginator.get_page(page)
 
-
     if queryset:
          posts = Post.objects.filter(
               Q(titulo__icontains = queryset) | 
               Q(descripcion__icontains = queryset)
          ).distinct
 
-
     return render(request, 'programacion.html', {'posts':posts})
+    
 
 def tutoriales(request):
     queryset = request.GET.get("buscar")
@@ -90,11 +87,11 @@ def tutoriales(request):
          ).distinct
 
     return render(request, 'tutoriales.html', {'posts':posts})
+    
 
 def tecnologia(request):
     queryset = request.GET.get("buscar")
-    posts = Post.objects.filter(estado=True, categoria = Categoria.objects.get(nombre__iexact ='Tecnologia'))
- 
+    posts = Post.objects.filter(estado=True, categoria = Categoria.objects.get(nombre__iexact ='Tecnologia')) 
     paginator = Paginator(posts, 3) 
     page = request.GET.get('page')
     posts = paginator.get_page(page)
@@ -105,13 +102,12 @@ def tecnologia(request):
               Q(descripcion__icontains = queryset)
          ).distinct
 
-
     return render(request, 'tecnologia.html', {'posts':posts})
+    
 
 def videojuegos(request):
     queryset = request.GET.get("buscar")
     posts = Post.objects.filter(estado=True, categoria = Categoria.objects.get(nombre__iexact ='Videojuegos'))
-
     paginator = Paginator(posts, 3) 
     page = request.GET.get('page')
     posts = paginator.get_page(page)
@@ -126,13 +122,10 @@ def videojuegos(request):
 
 
 def contacto(request):
-
+#contacto lo puedes agregar si lo deseas
     return render(request, 'contacto.html')
 
 
-def detalle_post(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
 
-    return render(request, "detalle_post.html", {"post": post})
 
 
