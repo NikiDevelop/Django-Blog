@@ -1,0 +1,47 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block titulo %} {{ post.titulo |upper }} | BLOG{% endblock titulo %}
+
+{% block cuerpo %}
+    <div class="site-cover site-cover-sm same-height overlay single-page" style="background-image: url('{{ post.imagen.url}}')">
+      <div class="container">
+        <div class="row same-height justify-content-center">
+          <div class="col-md-12 col-lg-10">
+            <div class="post-entry text-center">
+              <span class="post-category text-white bg-success mb-3">{{ post.categoria}}</span>
+              <h1 class="mb-4">{{ post.titulo |upper }}</h1>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="site-section py-lg">
+      <div class="container">
+        <div class="row blog-entries element-animate">
+
+          <div class="col-md-12 col-lg-8 main-content">
+
+            <div class="post-content-body">
+              {{ post.contenido |safe }}
+            </div>
+            <h4>{{ post.autor }}</h4>            
+            <span>{{ post.fecha_creacion }}</span>
+          </div>
+          <div class="post-meta align-items-center text-center">
+          </div>     
+    </section>      
+      
+      <script>      
+      (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://blog-dev2.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+      })();
+      </script>
+      <noscript> <a href="https://disqus.com/?ref_noscript"></a></noscript>
+    </div>
+    </section>
+{% endblock cuerpo %}

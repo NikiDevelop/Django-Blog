@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+   <title>{% block titulo %}Blog{% endblock titulo %}</title>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <link href="https://fonts.googleapis.com/css?family=Muli:300,400,700|Playfair+Display:400,700,900" rel="stylesheet">
+   <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}">
+   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+   <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+   <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}">
+   <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+   <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+   <link rel="stylesheet" href="{% static 'css/bootstrap-datepicker.css' %}">
+   <link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}">
+   <link rel="stylesheet" href="{% static 'css/aos.css' %}">
+   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extracss %}
+  {% endblock extracss %}
+ </head>
+ <body>
+
+ <div class="site-wrap">
+   <div class="site-mobile-menu">
+     <div class="site-mobile-menu-header">
+       <div class="site-mobile-menu-close mt-3">
+         <span class="icon-close2 js-menu-toggle"></span>
+       </div>
+     </div>
+     <div class="site-mobile-menu-body"></div>
+   </div>
+   <header class="site-navbar pt-3" role="banner">
+     <div class="container-fluid">
+       <div class="row align-items-center">
+         <div class="col-6 col-xl-6 logo">
+           <h1 class="mb-0"><a href="{% url 'blog:index'  %}" class="text-black h2 mb-0">BLOG</a></h1>
+         </div>
+         <!--No te olvides de poner tus redes sociales-->
+         <div class="col-6 mr-auto py-3 text-right" style="position: relative; top: 3px;">
+           <div class="social-icons d-inline">
+            <a href="{{ sociales.linkedin }}" target="_blank"><span class="icon-linkedin"></span></a>
+               <a href="{{ sociales.facebook }}" target="_blank"><span class="icon-facebook"></span></a>
+               <a href="{{ sociales.twitter }}" target="_blank"><span class="icon-twitter"></span></a>
+               <a href="{{ sociales.instagram }}" target="_blank"><span class="icon-instagram"></span></a>
+           </div>
+           <a href="#" class="site-menu-toggle js-menu-toggle text-black d-inline-block d-xl-none"><span class="icon-menu h3"></span></a></div>
+         </div>
+         <!--Hacemos un if para cuando estemos navegando por nuestra web según donde estemos
+          te indique en que sección estás con el metodo active-->
+         <div class="col-12 d-none d-xl-block border-top">
+           <nav class="site-navigation text-center " role="navigation">
+             <ul class="site-menu js-clone-nav mx-auto d-none d-lg-block mb-0">
+               <li class="{% if request.path == '/' %}active{% endif %}"><a href="{% url 'blog:index'  %}">Inicio</a></li>
+               <li class="{% if request.path == '/cine/' %}active{% endif %}"><a href="{% url 'blog:cine' %}">Cine</a></li>
+               <li class="{% if request.path == '/videojuegos/' %}active{% endif %}"><a href="{% url 'blog:videojuegos' %}">Videojuegos</a></li>
+               <li class="{% if request.path == '/tecnologia/' %}active{% endif %}"><a href="{% url 'blog:tecnologia' %}">Tecnología</a></li>
+               <li class="{% if request.path == '/programacion/' %}active{% endif %}"><a href="{% url 'blog:programacion' %}">Programación</a></li>
+               <li class="{% if request.path == '/tutoriales/' %}active{% endif %}"><a href="{% url 'blog:tutoriales' %}">Tutoriales</a></li>
+              <!-- <li><a href="{% url 'blog:contacto' %}">Contacto</a></li>-->
+             </ul>
+           </nav>
+         </div>
+       </div>
+   </header>
+   <!--Una barra de busqueda simple-->
+{% block barra_busqueda %}
+   <div class="container">
+      <div class="row">
+        <div class="col-md-12 search">
+          <form method="get">
+            <div id="custom-search-input">
+              <div class="input-group col-md-10">
+                <input type="text" class="form-control" placeholder="Buscar" id="buscar" value="{{request.GET.get.buscar}}">
+                <span class="input-group-list">
+                  <i class="icon icon-search"></i>
+                    <button type="submit" class="boton btn-success" style="background-color: #2f89fc; border-color: #2f89fc;color: whitesmoke;">Buscar</button>                 
+                </span>
+              </div> 
+            </div>
+          </form>
+        </div>
+      </div>
+   </div>
+{% endblock barra_busqueda %}
+{% csrf_token %}
+<!--Creamos un if, si existen post pues los recoremos con un bucle for-->
+{% block cuerpo %}
+   <div class="slide-one-item home-slider owl-carousel">
+       <div class="container">
+         <div class="row same-height align-items-center">
+          {% if posts %}
+            {% for post in posts %}
+           <div class="col-md-12 col-lg-6">
+           <div class="card" style="text-align: center;max-height: 600px;background-color: #191919;margin-top: 5%;">
+             <div class="post-entry">
+               <span class="post-category text-white bg-success mb-3">{{ post.categoria | upper }}</span>
+               <div class="post-meta align-items-center text-left">
+                 <img src="{{ post.imagen.url}}" alt="Image" class="img-fluid" style="width: 100%; max-height: 320px;">
+                 <h2 class="mb-4" style="text-align: center;"><a href="{% url 'blog:post_detalle' post.id %}" style="color: aliceblue;">{{ post.titulo|truncatechars:35 }}</a></h2>
+                 <div class="col-md-8" style="margin-top: 5%; margin-bottom: 4%;">
+                  <p >{{post.descripcion|truncatechars:100}}</p>
+                  <a href="{% url 'blog:post_detalle' post.id %}" style="text-decoration: none;color: rgb(148, 147, 147);">Leer más...</a>
+                  <!--<p>{{ post.autor }}</p>-->
+                  <p>{{ post.fecha_creacion }}</p>               
+                 </div>                             
+               </div>
+             </div>
+           </div>
+           </div>
+           {% endfor %}
+           {% else %}
+           <h2>No hay posts</h2>
+           {% endif %}
+         </div>
+       </div>
+     </div>
+   </div>
+   <!--Utilizamos paginator y creamos unos Anchor para ver los siguientes post o ver los anteriores
+    utilizando un if para que nos muestre el anchor creado si hay más post o no-->
+   <div class="row">
+    <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
+      <div class="col-6-md-6 col-sm-6 col-lg6 col-xs-6 float-right">
+        {% if posts.has_previous %}
+        <div class="clearfix">
+          <a href="?page={{posts.previous_page_number}}{% if request.GET.search %} &q={{ request.GET.search }}{% endif %}" class="btn btn-primary float-left">Anterior</a>
+        </div>
+        {% elif posts.has_next%}
+        <div class="clearfix">
+          <a href="?page={{posts.next_page_number}}{% if request.GET.search %} &q={{ request.GET.search }}{% endif %}" class="btn btn-primary float-left">Siguiente</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+   </div>
+   
+  
+
+ {% endblock cuerpo %}
+
+       <div class="row">
+         <div class="col-12 text-center">
+           <p>            
+             Copyright &copy; <script>document.write(new Date().getFullYear());</script> All rights reserved            
+             </p>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+ <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
+ <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+ <script src="{% static 'js/jquery-ui.js' %}"></script>
+ <script src="{% static 'js/popper.min.js' %}"></script>
+ <script src="{% static 'js/bootstrap.min.js' %}"></script>
+ <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+ <script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+ <script src="{% static 'js/jquery.countdown.min.js' %}"></script>
+ <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+ <script src="{% static 'js/bootstrap-datepicker.min.js' %}"></script>
+ <script src="{% static 'js/aos.js' %}"></script>
+ <script src="{% static 'js/main.js' %}"></script>
+{% block extrajs %}
+{% endblock extrajs %}
+ </body>
+</html>
