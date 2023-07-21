@@ -122,7 +122,7 @@ def videojuegos(request):
 
 
 def contacto(request):
-#contacto lo puedes agregar si lo deseas
+#contacto lo puedes agregar si lo deseas, tienes ya creado el HTML de contacto, yo lo tengo comentado
     return render(request, 'contacto.html')
 
 
