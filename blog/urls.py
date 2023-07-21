@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import home, cine, programacion, tecnologia, videojuegos, tutoriales, contacto, detalle_post,detallePost
+from .views import home, cine, programacion, tecnologia, videojuegos, tutoriales, contacto, detallePost
 
 
 app_name = 'blog'
