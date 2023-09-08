@@ -9,7 +9,7 @@ Creamos un entorno virtual.
 ```
 $ python -m venv env
 ```
-Tenemos que activar nuestro entorno virtual, tendremos que desplzarnos a la carpeta scripts.
+Tenemos que activar nuestro entorno virtual, tendremos que desplazarnos a la carpeta scripts.
 ```
 $ cd env/scripts
 ```
