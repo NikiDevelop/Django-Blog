@@ -17,20 +17,20 @@ Activamos nuestro entorno virtual.
 ```
 $ .\activate
 ```
-Ya tendriamos antivado nuestro entorno virtual, debería salirte a la izquiera en color verde (env), eso quiere decir que esta activado ya.
+Ya tendríamos activado nuestro entorno virtual, debería salirte a la izquierda en color verde (env), eso quiere decir que está activado ya.
 
-Ahora tenemos que regresar a nuestra carpeta del archivo para eso utilizamos el siguiente comando por dos veces para regresar.
+Ahora tenemos que regresar a nuestra carpeta del archivo, para eso utilizamos el siguiente comando por dos veces para regresar.
 
 ```
 $ cd .. 
 ```
 
-Genial! ya podemos instalar Django con sus dependencias del proyecto.
+Ahora pasaremos a instalar las dependencias del proyecto.
 ```
 $ pip install -r requirements.txt
 ```
 
-Por último ya solo te queda hacer las migraciones.
+Por último, ya solo te queda hacer las migraciones.
 ```
 $ python manage.py makemigrations
 ```
@@ -46,5 +46,4 @@ el email lo puedes dejar en blanco si quieres dandole a enter y por último intr
 $ python manage.py createsuperuser
 ```
 
-Este proyecto se puede escalar como quieras.
 Cualquier sugerencia o participación que quieras aportar es bienvenida.
