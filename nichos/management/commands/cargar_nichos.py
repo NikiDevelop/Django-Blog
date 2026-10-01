@@ -17,4 +17,4 @@ class Command(BaseCommand):
                 f'{sitio.comparativas.count()} comparativas, {sitio.tendencias.count()} tendencias, '
                 f'{sitio.productos.count()} productos'
             )
-        self.stdout.write(self.style.SUCCESS(f'{len(sitios)} webs cargadas. Visítalas en /webs/'))
+        self.stdout.write(self.style.SUCCESS(f'Webs cargadas: {len(sitios)}. Visítalas en /webs/'))
