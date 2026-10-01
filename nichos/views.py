@@ -28,7 +28,7 @@ def inicio(request, sitio):
         'destacado': articulos.filter(destacado=True).first() or articulos.first(),
         'articulos': articulos[:6],
         'comparativas': sitio.comparativas.filter(publicado=True)[:3],
-        'tendencias': sitio.tendencias.all()[:4],
+        'tendencias': sitio.tendencias.select_related('articulo__sitio')[:4],
         'productos': sitio.productos.filter(publicado=True)[:4],
     }
     return render(request, 'nichos/inicio.html', contexto)
@@ -98,7 +98,7 @@ def comparativa(request, sitio, slug):
 
 def tendencias(request, sitio):
     sitio = _sitio(sitio)
-    tendencias = sitio.tendencias.select_related('articulo')
+    tendencias = sitio.tendencias.select_related('articulo__sitio')
     estado = request.GET.get('estado')
     if estado in dict(Tendencia.ESTADOS):
         tendencias = tendencias.filter(estado=estado)

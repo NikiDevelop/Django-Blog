@@ -1,6 +1,9 @@
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+
+color_hex = RegexValidator(r'^#[0-9a-fA-F]{6}$', 'Usa un color hexadecimal, p. ej. #2f89fc')
 
 
 # Cada Sitio es una web independiente de un nicho en tendencia.
@@ -12,8 +15,8 @@ class Sitio(models.Model):
     descripcion = models.TextField(help_text='Texto de presentación de la web')
     nicho = models.CharField(max_length=120, help_text='Temática principal, p. ej. "Inteligencia artificial"')
     icono = models.CharField(max_length=8, help_text='Emoji que identifica la web')
-    color_primario = models.CharField(max_length=7, default='#2f89fc')
-    color_secundario = models.CharField(max_length=7, default='#0f172a')
+    color_primario = models.CharField(max_length=7, default='#2f89fc', validators=[color_hex])
+    color_secundario = models.CharField(max_length=7, default='#0f172a', validators=[color_hex])
     # Por qué existe esta web: datos de búsqueda que justifican el nicho
     por_que = models.TextField('Por qué es tendencia', help_text='HTML con los datos de la investigación')
     fuentes = models.JSONField(default=list, blank=True, help_text='Lista de {"titulo": ..., "url": ...}')
@@ -73,7 +76,8 @@ class Producto(models.Model):
     ideal_para = models.CharField(max_length=160, blank=True)
     precio_orientativo = models.CharField(max_length=60, blank=True)
     # Valoración editorial (0-10) basada en especificaciones y relación calidad/precio
-    puntuacion = models.DecimalField(max_digits=3, decimal_places=1, default=0)
+    puntuacion = models.DecimalField(max_digits=3, decimal_places=1, default=0,
+                                     validators=[MinValueValidator(0), MaxValueValidator(10)])
     pros = models.JSONField(default=list, blank=True)
     contras = models.JSONField(default=list, blank=True)
     especificaciones = models.JSONField(default=dict, blank=True)

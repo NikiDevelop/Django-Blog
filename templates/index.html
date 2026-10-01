@@ -57,6 +57,7 @@
                <li class="{% if request.path == '/tecnologia/' %}active{% endif %}"><a href="{% url 'blog:tecnologia' %}">Tecnología</a></li>
                <li class="{% if request.path == '/programacion/' %}active{% endif %}"><a href="{% url 'blog:programacion' %}">Programación</a></li>
                <li class="{% if request.path == '/tutoriales/' %}active{% endif %}"><a href="{% url 'blog:tutoriales' %}">Tutoriales</a></li>
+               <li><a href="{% url 'nichos:portada' %}">Webs de tendencias</a></li>
               <!-- <li><a href="{% url 'blog:contacto' %}">Contacto</a></li>-->
              </ul>
            </nav>

@@ -8,7 +8,7 @@
   <meta property="og:type" content="{% block og_tipo %}website{% endblock og_tipo %}">
   <meta property="og:title" content="{% block og_titulo %}{% if sitio %}{{ sitio.nombre }}{% else %}Webs de tendencias{% endif %}{% endblock og_titulo %}">
   <meta property="og:locale" content="es_ES">
-  <link rel="canonical" href="{{ request.build_absolute_uri }}">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>{% if sitio %}{{ sitio.icono }}{% else %}📈{% endif %}</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

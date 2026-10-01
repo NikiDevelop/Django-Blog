@@ -106,8 +106,9 @@ h3 { font-size: 1.2rem; }
 @media (max-width: 760px) {
   .cabecera__fila { gap: 10px; }
   .menu { order: 3; flex-basis: 100%; }
-  .cabecera .buscador { margin-left: auto; }
-  .cabecera .buscador input { width: 140px; }
+  /* Base 0: el buscador ocupa solo el hueco que deja el logo, sin forzar un salto de línea */
+  .cabecera .buscador { margin-left: auto; flex: 1 1 0; min-width: 90px; max-width: 170px; }
+  .cabecera .buscador input { width: 100%; }
 }
 
 /* ---------- Botones y chips ---------- */
