@@ -1,0 +1,31 @@
+{% extends 'nichos/base.html' %}
+{% load nichos_extras %}
+
+{% block titulo %}Productos · {{ sitio.nombre }}{% endblock titulo %}
+{% block descripcion %}Selección de productos de {{ sitio.nicho|lower }} con pros, contras y valoración.{% endblock descripcion %}
+
+{% block cuerpo %}
+<section class="cabecera-pagina">
+  <div class="contenedor">
+    <p class="antetitulo">Productos</p>
+    <h1>Nuestra selección</h1>
+    <p class="heroe__texto">Productos que encajan con las tendencias del momento. Puntuamos especificaciones, utilidad real y relación calidad/precio.</p>
+  </div>
+</section>
+
+<section class="contenedor seccion">
+  <div class="chips" aria-label="Categorías">
+    <a class="chip" href="{% url_con categoria=None %}" {% if not categoria %}aria-current="true"{% endif %}>Todos</a>
+    {% for c in categorias %}
+      <a class="chip" href="{% url_con categoria=c %}" {% if c == categoria %}aria-current="true"{% endif %}>{{ c }}</a>
+    {% endfor %}
+  </div>
+  <div class="rejilla rejilla--3">
+    {% for producto in productos %}
+      {% include 'nichos/parciales/tarjeta_producto.html' %}
+    {% empty %}
+      <p>No hay productos en esta categoría.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock cuerpo %}

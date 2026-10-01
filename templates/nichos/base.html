@@ -1,0 +1,95 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{% if sitio %}{{ sitio.nombre }} · {{ sitio.eslogan }}{% else %}Webs de tendencias{% endif %}{% endblock titulo %}</title>
+  <meta name="description" content="{% block descripcion %}{% if sitio %}{{ sitio.eslogan }}{% else %}Cinco webs creadas a partir de lo que más busca la gente: IA, salud, finanzas, hogar y belleza.{% endif %}{% endblock descripcion %}">
+  <meta property="og:type" content="{% block og_tipo %}website{% endblock og_tipo %}">
+  <meta property="og:title" content="{% block og_titulo %}{% if sitio %}{{ sitio.nombre }}{% else %}Webs de tendencias{% endif %}{% endblock og_titulo %}">
+  <meta property="og:locale" content="es_ES">
+  <link rel="canonical" href="{{ request.build_absolute_uri }}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>{% if sitio %}{{ sitio.icono }}{% else %}📈{% endif %}</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'nichos/css/nichos.css' %}">
+  {% if sitio %}
+  <style>:root { --primario: {{ sitio.color_primario }}; --secundario: {{ sitio.color_secundario }}; }</style>
+  {% endif %}
+  {% block cabecera_extra %}{% endblock cabecera_extra %}
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+
+  <header class="cabecera">
+    <div class="contenedor cabecera__fila">
+      {% if sitio %}
+        <a class="logo" href="{% url 'nichos:inicio' sitio.slug %}">
+          <span class="logo__icono" aria-hidden="true">{{ sitio.icono }}</span>
+          <span>{{ sitio.nombre }}</span>
+        </a>
+        {% with seccion=request.resolver_match.url_name %}
+        <nav class="menu" aria-label="Secciones de {{ sitio.nombre }}">
+          <a href="{% url 'nichos:inicio' sitio.slug %}" {% if seccion == 'inicio' %}aria-current="page"{% endif %}>Inicio</a>
+          <a href="{% url 'nichos:blog' sitio.slug %}" {% if seccion == 'blog' or seccion == 'articulo' %}aria-current="page"{% endif %}>Blog</a>
+          <a href="{% url 'nichos:comparativas' sitio.slug %}" {% if seccion == 'comparativas' or seccion == 'comparativa' %}aria-current="page"{% endif %}>Comparativas</a>
+          <a href="{% url 'nichos:tendencias' sitio.slug %}" {% if seccion == 'tendencias' %}aria-current="page"{% endif %}>Tendencias</a>
+          <a href="{% url 'nichos:productos' sitio.slug %}" {% if seccion == 'productos' or seccion == 'producto' %}aria-current="page"{% endif %}>Productos</a>
+        </nav>
+        {% endwith %}
+        <form class="buscador" action="{% url 'nichos:buscar' sitio.slug %}" method="get" role="search">
+          <label class="oculto" for="q-cabecera">Buscar en {{ sitio.nombre }}</label>
+          <input id="q-cabecera" type="search" name="q" placeholder="Buscar…" value="{{ q|default:'' }}">
+        </form>
+      {% else %}
+        <a class="logo" href="{% url 'nichos:portada' %}">
+          <span class="logo__icono" aria-hidden="true">📈</span>
+          <span>Webs de tendencias</span>
+        </a>
+        <nav class="menu" aria-label="Webs">
+          {% for s in red_sitios %}
+            <a href="{% url 'nichos:inicio' s.slug %}">{{ s.icono }} {{ s.nombre }}</a>
+          {% endfor %}
+        </nav>
+      {% endif %}
+    </div>
+  </header>
+
+  <main id="contenido">
+    {% block cuerpo %}{% endblock cuerpo %}
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor pie__rejilla">
+      <div>
+        {% if sitio %}
+          <p class="pie__marca">{{ sitio.icono }} {{ sitio.nombre }}</p>
+          <p>{{ sitio.eslogan }}</p>
+        {% else %}
+          <p class="pie__marca">📈 Webs de tendencias</p>
+          <p>Contenido creado a partir de datos de búsqueda reales.</p>
+        {% endif %}
+      </div>
+      <div>
+        <p class="pie__titulo">Nuestra red de webs</p>
+        <ul class="pie__lista">
+          <li><a href="{% url 'nichos:portada' %}">Todas las webs</a></li>
+          {% for s in red_sitios %}
+            <li><a href="{% url 'nichos:inicio' s.slug %}">{{ s.icono }} {{ s.nombre }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="pie__aviso">
+        <p class="pie__titulo">Transparencia</p>
+        <p>Algunos enlaces de compra pueden ser de afiliado: si compras, podemos recibir una comisión sin coste extra para ti.
+          Los precios son orientativos y las valoraciones son editoriales, basadas en especificaciones y relación calidad/precio.</p>
+        <p>El contenido es informativo y no sustituye el consejo de un profesional sanitario, financiero o técnico.</p>
+      </div>
+    </div>
+    <div class="contenedor pie__legal">
+      <p>© {% now "Y" %} {% if sitio %}{{ sitio.nombre }}{% else %}Webs de tendencias{% endif %}. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</body>
+</html>

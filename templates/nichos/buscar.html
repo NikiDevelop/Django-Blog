@@ -1,0 +1,65 @@
+{% extends 'nichos/base.html' %}
+
+{% block titulo %}Buscar{% if q %}: {{ q }}{% endif %} · {{ sitio.nombre }}{% endblock titulo %}
+
+{% block cuerpo %}
+<section class="cabecera-pagina">
+  <div class="contenedor">
+    <p class="antetitulo">Buscador</p>
+    <h1>{% if q %}Resultados para «{{ q }}»{% else %}Buscar en {{ sitio.nombre }}{% endif %}</h1>
+    <form class="buscador buscador--grande" method="get" role="search">
+      <label class="oculto" for="q-pagina">Buscar</label>
+      <input id="q-pagina" type="search" name="q" placeholder="Artículos, comparativas, productos…" value="{{ q }}">
+      <button class="boton" type="submit">Buscar</button>
+    </form>
+  </div>
+</section>
+
+<section class="contenedor seccion">
+  {% if q %}
+    <p class="meta">{{ total }} resultado{{ total|pluralize }}</p>
+
+    {% if resultados.articulos %}
+      <h2 class="seccion__titulo">Artículos</h2>
+      <div class="rejilla rejilla--3">
+        {% for articulo in resultados.articulos %}
+          {% include 'nichos/parciales/tarjeta_articulo.html' %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if resultados.comparativas %}
+      <h2 class="seccion__titulo">Comparativas</h2>
+      <div class="rejilla rejilla--3">
+        {% for comparativa in resultados.comparativas %}
+          <a class="comparativa-tarjeta" href="{{ comparativa.get_absolute_url }}">
+            <span class="comparativa-tarjeta__icono" aria-hidden="true">{{ comparativa.icono|default:"⚖️" }}</span>
+            <strong>{{ comparativa.titulo }}</strong>
+            <span>{{ comparativa.resumen|truncatechars:110 }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if resultados.productos %}
+      <h2 class="seccion__titulo">Productos</h2>
+      <div class="rejilla rejilla--3">
+        {% for producto in resultados.productos %}
+          {% include 'nichos/parciales/tarjeta_producto.html' %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if resultados.tendencias %}
+      <h2 class="seccion__titulo">Tendencias</h2>
+      <div class="rejilla rejilla--3">
+        {% for tendencia in resultados.tendencias %}
+          {% include 'nichos/parciales/tarjeta_tendencia.html' %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if not total %}<p>No hemos encontrado nada. Prueba con otra palabra.</p>{% endif %}
+  {% endif %}
+</section>
+{% endblock cuerpo %}

@@ -1,0 +1,11 @@
+<article class="tarjeta">
+  <a class="tarjeta__portada" href="{{ articulo.get_absolute_url }}" tabindex="-1" aria-hidden="true">
+    <span>{{ articulo.icono|default:sitio.icono }}</span>
+  </a>
+  <div class="tarjeta__cuerpo">
+    <p class="etiqueta">{{ articulo.categoria }}</p>
+    <h3 class="tarjeta__titulo"><a href="{{ articulo.get_absolute_url }}">{{ articulo.titulo }}</a></h3>
+    <p class="tarjeta__texto">{{ articulo.resumen|truncatechars:150 }}</p>
+    <p class="meta">{{ articulo.fecha_publicacion|date:"j M Y" }} · {{ articulo.minutos_lectura }} min de lectura</p>
+  </div>
+</article>

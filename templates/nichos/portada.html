@@ -1,0 +1,54 @@
+{% extends 'nichos/base.html' %}
+
+{% block cuerpo %}
+<section class="heroe heroe--red">
+  <div class="contenedor">
+    <p class="antetitulo">Investigación de búsquedas · 2025-2026</p>
+    <h1>5 webs creadas a partir de lo que más busca la gente</h1>
+    <p class="heroe__texto">Analizamos Google Year in Search España 2025, Exploding Topics, informes de consumo y datos de mercado
+      para detectar los temas con más demanda. Cada web tiene su blog, comparativas, radar de tendencias y selección de productos.</p>
+  </div>
+</section>
+
+<section class="contenedor seccion">
+  <div class="rejilla rejilla--sitios">
+    {% for s in sitios %}
+      <article class="sitio-tarjeta" style="--primario: {{ s.color_primario }}; --secundario: {{ s.color_secundario }};">
+        <a class="sitio-tarjeta__portada" href="{% url 'nichos:inicio' s.slug %}" aria-label="Ir a {{ s.nombre }}">
+          <span aria-hidden="true">{{ s.icono }}</span>
+        </a>
+        <div class="sitio-tarjeta__cuerpo">
+          <p class="etiqueta">{{ s.nicho }}</p>
+          <h2><a href="{% url 'nichos:inicio' s.slug %}">{{ s.nombre }}</a></h2>
+          <p>{{ s.eslogan }}</p>
+          <div class="sitio-tarjeta__porque">{{ s.por_que|safe|truncatewords_html:45 }}</div>
+          <ul class="contadores">
+            <li><strong>{{ s.num_articulos }}</strong> artículos</li>
+            <li><strong>{{ s.num_comparativas }}</strong> comparativas</li>
+            <li><strong>{{ s.num_tendencias }}</strong> tendencias</li>
+            <li><strong>{{ s.num_productos }}</strong> productos</li>
+          </ul>
+          <a class="boton" href="{% url 'nichos:inicio' s.slug %}">Visitar {{ s.nombre }}</a>
+        </div>
+      </article>
+    {% empty %}
+      <p>Aún no hay webs cargadas. Ejecuta <code>python manage.py cargar_nichos</code>.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% if sitios %}
+<section class="contenedor seccion">
+  <h2 class="seccion__titulo">Metodología</h2>
+  <div class="prosa">
+    <p>Elegimos los nichos que cumplen tres condiciones a la vez:</p>
+    <ol>
+      <li><strong>Demanda demostrada.</strong> Aparecen en los rankings de Google de España o tienen un crecimiento de búsquedas documentado.</li>
+      <li><strong>Intención práctica.</strong> La gente busca "cómo", "qué es mejor" o "cuál comprar", y eso se resuelve con guías, comparativas y productos.</li>
+      <li><strong>Recorrido en 2026.</strong> No son modas de una semana. Son cambios de hábito, como usar IA a diario, cuidar la longevidad, proteger los ahorros, preparar la casa o adoptar la medicosmética.</li>
+    </ol>
+    <p>Las fuentes concretas están en la portada de cada web, en el apartado "Por qué esta web".</p>
+  </div>
+</section>
+{% endif %}
+{% endblock cuerpo %}

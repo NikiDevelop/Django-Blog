@@ -1,0 +1,94 @@
+{% extends 'nichos/base.html' %}
+{% load nichos_extras %}
+
+{% block titulo %}{{ producto.nombre }}: análisis y opinión · {{ sitio.nombre }}{% endblock titulo %}
+{% block descripcion %}{{ producto.resumen }}{% endblock descripcion %}
+{% block og_titulo %}{{ producto.nombre }}{% endblock og_titulo %}
+
+{% block cuerpo %}
+<header class="cabecera-pagina">
+  <div class="contenedor contenedor--estrecho">
+    <nav class="migas" aria-label="Migas de pan">
+      <a href="{% url 'nichos:inicio' sitio.slug %}">{{ sitio.nombre }}</a> ›
+      <a href="{% url 'nichos:productos' sitio.slug %}">Productos</a> ›
+      <a href="{% url 'nichos:productos' sitio.slug %}?categoria={{ producto.categoria|urlencode }}">{{ producto.categoria }}</a>
+    </nav>
+    <span class="articulo__icono" aria-hidden="true">{{ producto.icono|default:sitio.icono }}</span>
+    <h1>{{ producto.nombre }}</h1>
+    <p class="heroe__texto">{{ producto.resumen }}</p>
+  </div>
+</header>
+
+<div class="contenedor contenedor--estrecho seccion">
+  <div class="ficha">
+    <div class="ficha__nota">
+      <span class="ficha__valor">{{ producto.puntuacion }}</span>
+      <span class="meta">/10 · valoración editorial</span>
+      <span class="nota__barra"><span style="width: {{ producto.puntuacion|porcentaje }}%"></span></span>
+    </div>
+    <dl class="ficha__datos">
+      {% if producto.marca %}<div><dt>Marca</dt><dd>{{ producto.marca }}</dd></div>{% endif %}
+      {% if producto.precio_orientativo %}<div><dt>Precio orientativo</dt><dd>{{ producto.precio_orientativo }}</dd></div>{% endif %}
+      {% if producto.ideal_para %}<div><dt>Ideal para</dt><dd>{{ producto.ideal_para }}</dd></div>{% endif %}
+    </dl>
+    {% if producto.enlace %}
+      <a class="boton" href="{{ producto.enlace }}" rel="sponsored nofollow noopener" target="_blank">Ver precio actual</a>
+    {% endif %}
+  </div>
+
+  <div class="pros-contras">
+    {% if producto.pros %}
+    <div class="pros">
+      <h2>A favor</h2>
+      <ul>{% for pro in producto.pros %}<li>{{ pro }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    {% if producto.contras %}
+    <div class="contras">
+      <h2>En contra</h2>
+      <ul>{% for contra in producto.contras %}<li>{{ contra }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if producto.contenido %}
+    <div class="prosa">{{ producto.contenido|safe }}</div>
+  {% endif %}
+
+  {% if producto.especificaciones %}
+    <h2 class="seccion__titulo">Especificaciones</h2>
+    <div class="tabla-envoltorio">
+      <table class="tabla-comparativa tabla-comparativa--fichas">
+        <tbody>
+          {% for clave, valor in producto.especificaciones.items %}
+            <tr><th scope="row">{{ clave }}</th><td>{{ valor }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="meta">Especificaciones y precios orientativos a la fecha de publicación. Compruébalos en la web del fabricante antes de comprar.</p>
+  {% endif %}
+
+  {% if comparativas %}
+    <h2 class="seccion__titulo">Aparece en estas comparativas</h2>
+    <ul class="lista-simple">
+      {% for comparativa in comparativas %}
+        <li><a href="{{ comparativa.get_absolute_url }}">{{ comparativa.icono }} {{ comparativa.titulo }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+
+{% if similares %}
+<section class="banda">
+  <div class="contenedor seccion">
+    <h2 class="seccion__titulo">Alternativas</h2>
+    <div class="rejilla rejilla--3">
+      {% for producto in similares %}
+        {% include 'nichos/parciales/tarjeta_producto.html' %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock cuerpo %}

@@ -1,0 +1,19 @@
+{% load nichos_extras %}<article class="tarjeta tarjeta--producto">
+  <div class="tarjeta__cuerpo">
+    <div class="producto__cabecera">
+      <span class="producto__icono" aria-hidden="true">{{ producto.icono|default:sitio.icono }}</span>
+      <div>
+        <p class="etiqueta">{{ producto.categoria }}</p>
+        <h3 class="tarjeta__titulo"><a href="{{ producto.get_absolute_url }}">{{ producto.nombre }}</a></h3>
+        {% if producto.marca %}<p class="meta">{{ producto.marca }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="nota" aria-label="Valoración editorial {{ producto.puntuacion }} sobre 10">
+      <span class="nota__valor">{{ producto.puntuacion }}</span>
+      <span class="nota__barra"><span style="width: {{ producto.puntuacion|porcentaje }}%"></span></span>
+    </div>
+    <p class="tarjeta__texto">{{ producto.resumen|truncatechars:130 }}</p>
+    {% if producto.precio_orientativo %}<p class="precio">{{ producto.precio_orientativo }}</p>{% endif %}
+    {% if producto.ideal_para %}<p class="meta">Ideal para: {{ producto.ideal_para }}</p>{% endif %}
+  </div>
+</article>

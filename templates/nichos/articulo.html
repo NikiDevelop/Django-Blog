@@ -1,0 +1,81 @@
+{% extends 'nichos/base.html' %}
+
+{% block titulo %}{{ articulo.titulo }} · {{ sitio.nombre }}{% endblock titulo %}
+{% block descripcion %}{{ articulo.resumen }}{% endblock descripcion %}
+{% block og_tipo %}article{% endblock og_tipo %}
+{% block og_titulo %}{{ articulo.titulo }}{% endblock og_titulo %}
+
+{% block cabecera_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ articulo.titulo|escapejs }}",
+  "description": "{{ articulo.resumen|escapejs }}",
+  "datePublished": "{{ articulo.fecha_publicacion|date:'Y-m-d' }}",
+  "inLanguage": "es",
+  "keywords": "{{ articulo.palabra_clave|escapejs }}",
+  "author": {"@type": "Organization", "name": "{{ sitio.nombre|escapejs }}"},
+  "publisher": {"@type": "Organization", "name": "{{ sitio.nombre|escapejs }}"}
+}
+</script>
+{% endblock cabecera_extra %}
+
+{% block cuerpo %}
+<article>
+  <header class="cabecera-pagina cabecera-pagina--articulo">
+    <div class="contenedor contenedor--estrecho">
+      <nav class="migas" aria-label="Migas de pan">
+        <a href="{% url 'nichos:inicio' sitio.slug %}">{{ sitio.nombre }}</a> ›
+        <a href="{% url 'nichos:blog' sitio.slug %}">Blog</a> ›
+        <a href="{% url 'nichos:blog' sitio.slug %}?categoria={{ articulo.categoria|urlencode }}">{{ articulo.categoria }}</a>
+      </nav>
+      <span class="articulo__icono" aria-hidden="true">{{ articulo.icono|default:sitio.icono }}</span>
+      <h1>{{ articulo.titulo }}</h1>
+      <p class="heroe__texto">{{ articulo.resumen }}</p>
+      <p class="meta meta--clara">Equipo editorial de {{ sitio.nombre }} · {{ articulo.fecha_publicacion|date:"j \d\e F \d\e Y" }} · {{ articulo.minutos_lectura }} min de lectura</p>
+    </div>
+  </header>
+
+  <div class="contenedor articulo__rejilla">
+    <div class="prosa">
+      {{ articulo.contenido|safe }}
+    </div>
+
+    <aside class="lateral">
+      {% if tendencias %}
+        <div class="lateral__bloque">
+          <p class="lateral__titulo">Tendencia relacionada</p>
+          {% for tendencia in tendencias %}
+            <p><strong>{{ tendencia.icono }} {{ tendencia.nombre }}</strong>{% if tendencia.dato %}<br><span class="tendencia__dato">{{ tendencia.dato }}</span>{% endif %}</p>
+          {% endfor %}
+          <a class="enlace-flecha" href="{% url 'nichos:tendencias' sitio.slug %}">Radar de tendencias →</a>
+        </div>
+      {% endif %}
+      {% if productos %}
+        <div class="lateral__bloque">
+          <p class="lateral__titulo">Productos recomendados</p>
+          <ul class="lista-simple">
+            {% for producto in productos %}
+              <li><a href="{{ producto.get_absolute_url }}">{{ producto.icono }} {{ producto.nombre }}</a> <span class="meta">{{ producto.puntuacion }}/10</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </aside>
+  </div>
+</article>
+
+{% if relacionados %}
+<section class="banda">
+  <div class="contenedor seccion">
+    <h2 class="seccion__titulo">Sigue leyendo</h2>
+    <div class="rejilla rejilla--3">
+      {% for articulo in relacionados %}
+        {% include 'nichos/parciales/tarjeta_articulo.html' %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock cuerpo %}

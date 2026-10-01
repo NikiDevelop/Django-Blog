@@ -1,0 +1,11 @@
+{% load nichos_extras %}{% if pagina.has_other_pages %}
+<nav class="paginacion" aria-label="Paginación">
+  {% if pagina.has_previous %}
+    <a class="boton boton--secundario" href="{% url_con page=pagina.previous_page_number %}">← Anterior</a>
+  {% endif %}
+  <span class="meta">Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+  {% if pagina.has_next %}
+    <a class="boton boton--secundario" href="{% url_con page=pagina.next_page_number %}">Siguiente →</a>
+  {% endif %}
+</nav>
+{% endif %}

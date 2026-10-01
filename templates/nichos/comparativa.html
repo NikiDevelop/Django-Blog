@@ -1,0 +1,80 @@
+{% extends 'nichos/base.html' %}
+
+{% block titulo %}{{ comparativa.titulo }} · {{ sitio.nombre }}{% endblock titulo %}
+{% block descripcion %}{{ comparativa.resumen }}{% endblock descripcion %}
+{% block og_titulo %}{{ comparativa.titulo }}{% endblock og_titulo %}
+
+{% block cuerpo %}
+<header class="cabecera-pagina">
+  <div class="contenedor contenedor--estrecho">
+    <nav class="migas" aria-label="Migas de pan">
+      <a href="{% url 'nichos:inicio' sitio.slug %}">{{ sitio.nombre }}</a> ›
+      <a href="{% url 'nichos:comparativas' sitio.slug %}">Comparativas</a>
+    </nav>
+    <span class="articulo__icono" aria-hidden="true">{{ comparativa.icono|default:"⚖️" }}</span>
+    <h1>{{ comparativa.titulo }}</h1>
+    <p class="heroe__texto">{{ comparativa.resumen }}</p>
+    <p class="meta meta--clara">Actualizada el {{ comparativa.fecha_publicacion|date:"j \d\e F \d\e Y" }}</p>
+  </div>
+</header>
+
+<div class="contenedor contenedor--estrecho seccion">
+  <div class="prosa">{{ comparativa.introduccion|safe }}</div>
+
+  <div class="tabla-envoltorio" tabindex="0" role="region" aria-label="Tabla comparativa">
+    <table class="tabla-comparativa">
+      <thead>
+        <tr>
+          <th scope="col">Criterio</th>
+          {% for columna in comparativa.columnas %}
+            <th scope="col" {% if forloop.counter0 == ganador_idx %}class="es-ganador"{% endif %}>
+              {{ columna }}{% if forloop.counter0 == ganador_idx %} <span class="ganador ganador--mini">🏆</span>{% endif %}
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in comparativa.filas %}
+          <tr>
+            <th scope="row">{{ fila.0 }}</th>
+            {% for valor in fila|slice:"1:" %}
+              <td {% if forloop.counter0 == ganador_idx %}class="es-ganador"{% endif %}>{{ valor }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="veredicto">
+    <h2>Veredicto{% if comparativa.ganador %}: {{ comparativa.ganador }}{% endif %}</h2>
+    <div class="prosa">{{ comparativa.veredicto|safe }}</div>
+  </div>
+
+  {% if productos %}
+    <h2 class="seccion__titulo">Productos de esta comparativa</h2>
+    <div class="rejilla rejilla--3">
+      {% for producto in productos %}
+        {% include 'nichos/parciales/tarjeta_producto.html' %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+{% if otras %}
+<section class="banda">
+  <div class="contenedor seccion">
+    <h2 class="seccion__titulo">Otras comparativas</h2>
+    <div class="rejilla rejilla--3">
+      {% for otra in otras %}
+        <a class="comparativa-tarjeta" href="{{ otra.get_absolute_url }}">
+          <span class="comparativa-tarjeta__icono" aria-hidden="true">{{ otra.icono|default:"⚖️" }}</span>
+          <strong>{{ otra.titulo }}</strong>
+          <span>{{ otra.resumen|truncatechars:110 }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock cuerpo %}

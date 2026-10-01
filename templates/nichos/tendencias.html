@@ -1,0 +1,31 @@
+{% extends 'nichos/base.html' %}
+{% load nichos_extras %}
+
+{% block titulo %}Tendencias · {{ sitio.nombre }}{% endblock titulo %}
+{% block descripcion %}Radar de tendencias de {{ sitio.nicho|lower }} con datos de búsqueda y fuentes.{% endblock descripcion %}
+
+{% block cuerpo %}
+<section class="cabecera-pagina">
+  <div class="contenedor">
+    <p class="antetitulo">Radar de tendencias</p>
+    <h1>Qué está subiendo en {{ sitio.nicho|lower }}</h1>
+    <p class="heroe__texto">Solo publicamos cifras que da la fuente original. Si una tendencia no tiene un dato público, la describimos sin inventar números.</p>
+  </div>
+</section>
+
+<section class="contenedor seccion">
+  <div class="chips" aria-label="Filtrar por estado">
+    <a class="chip" href="{% url_con estado=None %}" {% if not estado %}aria-current="true"{% endif %}>Todas</a>
+    {% for valor, nombre in estados %}
+      <a class="chip" href="{% url_con estado=valor %}" {% if valor == estado %}aria-current="true"{% endif %}>{{ nombre }}</a>
+    {% endfor %}
+  </div>
+  <div class="rejilla rejilla--3">
+    {% for tendencia in tendencias %}
+      {% include 'nichos/parciales/tarjeta_tendencia.html' %}
+    {% empty %}
+      <p>No hay tendencias con este filtro.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock cuerpo %}

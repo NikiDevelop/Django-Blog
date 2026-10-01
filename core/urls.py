@@ -4,9 +4,13 @@ from django.urls import path, include
 from django.conf import settings
 from blog import views
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
+from nichos.sitemaps import sitemaps
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    path('webs/', include('nichos.urls', namespace='nichos')),
 
     path('', include('blog.urls', namespace='blog')),
     path('cine/', include('blog.urls', namespace='cine')),

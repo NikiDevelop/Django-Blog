@@ -1,0 +1,30 @@
+{% extends 'nichos/base.html' %}
+
+{% block titulo %}Comparativas · {{ sitio.nombre }}{% endblock titulo %}
+{% block descripcion %}Comparativas de {{ sitio.nicho|lower }}: qué opción elegir según tu caso.{% endblock descripcion %}
+
+{% block cuerpo %}
+<section class="cabecera-pagina">
+  <div class="contenedor">
+    <p class="antetitulo">Comparativas</p>
+    <h1>¿Qué es mejor? Lo comparamos por ti</h1>
+    <p class="heroe__texto">Tablas lado a lado, criterios claros y un veredicto según el uso que le vayas a dar.</p>
+  </div>
+</section>
+
+<section class="contenedor seccion">
+  <div class="rejilla rejilla--2">
+    {% for comparativa in comparativas %}
+      <a class="comparativa-tarjeta comparativa-tarjeta--grande" href="{{ comparativa.get_absolute_url }}">
+        <span class="comparativa-tarjeta__icono" aria-hidden="true">{{ comparativa.icono|default:"⚖️" }}</span>
+        <strong>{{ comparativa.titulo }}</strong>
+        <span>{{ comparativa.resumen }}</span>
+        <span class="comparativa-tarjeta__opciones">{{ comparativa.columnas|join:" · " }}</span>
+        {% if comparativa.ganador %}<span class="ganador">🏆 Ganador: {{ comparativa.ganador }}</span>{% endif %}
+      </a>
+    {% empty %}
+      <p>Todavía no hay comparativas publicadas.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock cuerpo %}

@@ -1,0 +1,103 @@
+{% extends 'nichos/base.html' %}
+
+{% block cuerpo %}
+<section class="heroe">
+  <div class="contenedor heroe__rejilla">
+    <div>
+      <p class="antetitulo">{{ sitio.nicho }}</p>
+      <h1>{{ sitio.eslogan }}</h1>
+      <p class="heroe__texto">{{ sitio.descripcion }}</p>
+      <div class="botones">
+        <a class="boton boton--claro" href="{% url 'nichos:blog' sitio.slug %}">Leer el blog</a>
+        <a class="boton boton--contorno" href="{% url 'nichos:comparativas' sitio.slug %}">Ver comparativas</a>
+      </div>
+    </div>
+    {% if destacado %}
+    <a class="heroe__destacado" href="{{ destacado.get_absolute_url }}">
+      <span class="heroe__icono" aria-hidden="true">{{ destacado.icono|default:sitio.icono }}</span>
+      <span class="etiqueta etiqueta--clara">Destacado · {{ destacado.categoria }}</span>
+      <strong>{{ destacado.titulo }}</strong>
+      <span>{{ destacado.resumen|truncatechars:140 }}</span>
+    </a>
+    {% endif %}
+  </div>
+</section>
+
+{% if tendencias %}
+<section class="contenedor seccion">
+  <div class="seccion__cabecera">
+    <h2 class="seccion__titulo">Lo que más se está buscando</h2>
+    <a class="enlace-flecha" href="{% url 'nichos:tendencias' sitio.slug %}">Todas las tendencias →</a>
+  </div>
+  <div class="rejilla rejilla--4">
+    {% for tendencia in tendencias %}
+      {% include 'nichos/parciales/tarjeta_tendencia.html' %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="contenedor seccion">
+  <div class="seccion__cabecera">
+    <h2 class="seccion__titulo">Últimos artículos</h2>
+    <a class="enlace-flecha" href="{% url 'nichos:blog' sitio.slug %}">Ir al blog →</a>
+  </div>
+  <div class="rejilla rejilla--3">
+    {% for articulo in articulos %}
+      {% include 'nichos/parciales/tarjeta_articulo.html' %}
+    {% empty %}
+      <p>Todavía no hay artículos publicados.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% if comparativas %}
+<section class="banda">
+  <div class="contenedor seccion">
+    <div class="seccion__cabecera">
+      <h2 class="seccion__titulo">Comparativas: ¿qué es mejor?</h2>
+      <a class="enlace-flecha" href="{% url 'nichos:comparativas' sitio.slug %}">Todas las comparativas →</a>
+    </div>
+    <div class="rejilla rejilla--3">
+      {% for comparativa in comparativas %}
+        <a class="comparativa-tarjeta" href="{{ comparativa.get_absolute_url }}">
+          <span class="comparativa-tarjeta__icono" aria-hidden="true">{{ comparativa.icono|default:"⚖️" }}</span>
+          <strong>{{ comparativa.titulo }}</strong>
+          <span>{{ comparativa.resumen|truncatechars:120 }}</span>
+          {% if comparativa.ganador %}<span class="ganador">🏆 {{ comparativa.ganador }}</span>{% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if productos %}
+<section class="contenedor seccion">
+  <div class="seccion__cabecera">
+    <h2 class="seccion__titulo">Productos recomendados</h2>
+    <a class="enlace-flecha" href="{% url 'nichos:productos' sitio.slug %}">Ver todos →</a>
+  </div>
+  <div class="rejilla rejilla--4">
+    {% for producto in productos %}
+      {% include 'nichos/parciales/tarjeta_producto.html' %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="contenedor seccion">
+  <div class="porque">
+    <h2 class="seccion__titulo">Por qué esta web</h2>
+    <div class="prosa">{{ sitio.por_que|safe }}</div>
+    {% if sitio.fuentes %}
+      <p class="porque__fuentes-titulo">Fuentes de la investigación</p>
+      <ul class="porque__fuentes">
+        {% for fuente in sitio.fuentes %}
+          <li><a href="{{ fuente.url }}" rel="noopener" target="_blank">{{ fuente.titulo }}</a></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</section>
+{% endblock cuerpo %}

@@ -1,0 +1,17 @@
+<article class="tendencia">
+  <div class="tendencia__cabecera">
+    <span class="tendencia__icono" aria-hidden="true">{{ tendencia.icono|default:sitio.icono }}</span>
+    <span class="estado estado--{{ tendencia.estado }}">{{ tendencia.get_estado_display }}</span>
+  </div>
+  <h3 class="tendencia__nombre">{{ tendencia.nombre }}</h3>
+  {% if tendencia.dato %}<p class="tendencia__dato">{{ tendencia.dato }}</p>{% endif %}
+  <div class="tendencia__texto">{{ tendencia.descripcion|safe }}</div>
+  <p class="meta">
+    {% if tendencia.fuente %}Fuente:
+      {% if tendencia.fuente_url %}<a href="{{ tendencia.fuente_url }}" rel="noopener" target="_blank">{{ tendencia.fuente }}</a>{% else %}{{ tendencia.fuente }}{% endif %}
+    {% endif %}
+  </p>
+  {% if tendencia.articulo and tendencia.articulo.publicado %}
+    <a class="enlace-flecha" href="{{ tendencia.articulo.get_absolute_url }}">Leer la guía →</a>
+  {% endif %}
+</article>

@@ -1,0 +1,41 @@
+{% extends 'nichos/base.html' %}
+{% load nichos_extras %}
+
+{% block titulo %}Blog · {{ sitio.nombre }}{% endblock titulo %}
+{% block descripcion %}Guías y artículos de {{ sitio.nicho|lower }} en {{ sitio.nombre }}.{% endblock descripcion %}
+
+{% block cuerpo %}
+<section class="cabecera-pagina">
+  <div class="contenedor">
+    <p class="antetitulo">Blog</p>
+    <h1>Guías y artículos de {{ sitio.nicho|lower }}</h1>
+    <form class="buscador buscador--grande" method="get" role="search">
+      <label class="oculto" for="q-blog">Buscar en el blog</label>
+      <input id="q-blog" type="search" name="q" placeholder="Buscar en el blog…" value="{{ buscar }}">
+      {% if categoria %}<input type="hidden" name="categoria" value="{{ categoria }}">{% endif %}
+      <button class="boton" type="submit">Buscar</button>
+    </form>
+  </div>
+</section>
+
+<section class="contenedor seccion">
+  <div class="chips" aria-label="Categorías">
+    <a class="chip" href="{% url_con categoria=None page=None %}" {% if not categoria %}aria-current="true"{% endif %}>Todas</a>
+    {% for c in categorias %}
+      <a class="chip" href="{% url_con categoria=c page=None %}" {% if c == categoria %}aria-current="true"{% endif %}>{{ c }}</a>
+    {% endfor %}
+  </div>
+
+  {% if buscar %}<p class="meta">Resultados para «{{ buscar }}»: {{ articulos.paginator.count }}</p>{% endif %}
+
+  <div class="rejilla rejilla--3">
+    {% for articulo in articulos %}
+      {% include 'nichos/parciales/tarjeta_articulo.html' %}
+    {% empty %}
+      <p>No hay artículos que coincidan.</p>
+    {% endfor %}
+  </div>
+
+  {% include 'nichos/parciales/paginacion.html' with pagina=articulos %}
+</section>
+{% endblock cuerpo %}
