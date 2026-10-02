@@ -183,6 +183,8 @@ server {
 }
 EOF
         sed -i "s|__NOMBRES__|$nombres|; s|__APP_DIR__|$APP_DIR|g; s|__SOCKET__|$SOCKET|" "/etc/nginx/sites-available/$SERVICIO"
+        # Sin IPv6 en el servidor, nginx no arranca si intenta escuchar en [::]
+        [[ -f /proc/net/if_inet6 ]] || sed -i '/listen \[::\]:80;/d' "/etc/nginx/sites-available/$SERVICIO"
     fi
     ln -sf "/etc/nginx/sites-available/$SERVICIO" "/etc/nginx/sites-enabled/$SERVICIO"
     rm -f /etc/nginx/sites-enabled/default
