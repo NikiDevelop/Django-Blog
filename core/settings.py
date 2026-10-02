@@ -2,20 +2,46 @@
 from pathlib import Path
 import os
 
+from django.core.exceptions import ImproperlyConfigured
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+# En producción la configuración llega por variables de entorno o por un fichero .env
+# junto a manage.py (ver .env.example). Sin .env, el proyecto arranca en modo desarrollo.
+def _cargar_env(ruta):
+    if not ruta.exists():
+        return
+    for linea in ruta.read_text().splitlines():
+        linea = linea.strip()
+        if linea and not linea.startswith('#') and '=' in linea:
+            clave, valor = linea.split('=', 1)
+            os.environ.setdefault(clave.strip(), valor.strip().strip('"').strip("'"))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%cbm&1fr^##=adu_0^70$i(1p^c_+*y81+du)=ps@f&i&rkxy9'
+
+def _lista(nombre):
+    return [v.strip() for v in os.environ.get(nombre, '').split(',') if v.strip()]
+
+
+def _bool(nombre, defecto=False):
+    return os.environ.get(nombre, str(defecto)).strip().lower() in ('1', 'true', 'yes', 'si', 'sí')
+
+
+_cargar_env(BASE_DIR / '.env')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = _bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '')
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured('Define DJANGO_SECRET_KEY en el entorno o en .env para producción')
+    SECRET_KEY = 'django-insecure-%cbm&1fr^##=adu_0^70$i(1p^c_+*y81+du)=ps@f&i&rkxy9'
+
+ALLOWED_HOSTS = _lista('DJANGO_ALLOWED_HOSTS')
+CSRF_TRUSTED_ORIGINS = _lista('DJANGO_CSRF_TRUSTED_ORIGINS')
 
 
 # Application definition
@@ -127,6 +153,29 @@ MEDIA_URL = '/media/'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+# Carpeta donde collectstatic reúne los estáticos para que los sirva nginx
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+
+# Seguridad en producción (detrás de nginx con HTTPS)
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # Se activa cuando el dominio ya tiene certificado; antes provocaría bucles de redirección
+    SECURE_SSL_REDIRECT = _bool('DJANGO_HTTPS', False)
+    SESSION_COOKIE_SECURE = SECURE_SSL_REDIRECT
+    CSRF_COOKIE_SECURE = SECURE_SSL_REDIRECT
+    SECURE_HSTS_SECONDS = int(os.environ.get('DJANGO_HSTS_SECONDS', '0'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+    SESSION_COOKIE_HTTPONLY = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'consola': {'class': 'logging.StreamHandler'}},
+    'root': {'handlers': ['consola'], 'level': 'WARNING'},
+}
 
 
 

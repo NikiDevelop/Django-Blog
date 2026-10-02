@@ -132,6 +132,21 @@ class VistasTests(TestCase):
         self.assertTrue(respuesta.context['productos'])
         self.assertTrue(all(p.categoria == 'Kit de emergencia' for p in respuesta.context['productos']))
 
+    def test_pagina_404_propia(self):
+        respuesta = self.client.get('/webs/no-existe/')
+        self.assertContains(respuesta, 'Esta página no existe', status_code=404)
+
+    def test_robots_txt_apunta_al_sitemap(self):
+        respuesta = self.client.get('/robots.txt')
+        self.assertEqual(respuesta['Content-Type'], 'text/plain')
+        self.assertContains(respuesta, 'Disallow: /admin/')
+        self.assertContains(respuesta, 'Sitemap: http://testserver/sitemap.xml')
+
+    def test_salud_responde_ok(self):
+        respuesta = self.client.get('/salud/')
+        self.assertContains(respuesta, 'ok')
+        self.assertIn('no-cache', respuesta['Cache-Control'])
+
     def test_sitemap_incluye_articulos(self):
         respuesta = self.client.get('/sitemap.xml')
         self.assertEqual(respuesta.status_code, 200)

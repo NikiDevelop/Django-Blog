@@ -6,10 +6,13 @@ from blog import views
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from nichos.sitemaps import sitemaps
+from nichos.views import robots_txt, salud
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
+    path('robots.txt', robots_txt, name='robots'),
+    path('salud/', salud, name='salud'),
     path('webs/', include('nichos.urls', namespace='nichos')),
 
     path('', include('blog.urls', namespace='blog')),

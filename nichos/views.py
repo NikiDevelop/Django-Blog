@@ -1,6 +1,10 @@
 from django.core.paginator import Paginator
+from django.db import DatabaseError, connection
 from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+from django.views.decorators.cache import never_cache
 
 from .models import Articulo, Comparativa, Producto, Sitio, Tendencia
 
@@ -158,3 +162,23 @@ def buscar(request, sitio):
         'resultados': resultados,
         'total': total,
     })
+
+
+def robots_txt(request):
+    lineas = [
+        'User-agent: *',
+        'Disallow: /admin/',
+        f"Sitemap: {request.build_absolute_uri(reverse('sitemap'))}",
+    ]
+    return HttpResponse('\n'.join(lineas) + '\n', content_type='text/plain')
+
+
+@never_cache
+def salud(request):
+    # Para monitores de disponibilidad: comprueba que Django responde y la base de datos está accesible
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT 1')
+    except DatabaseError:
+        return HttpResponse('error', status=503, content_type='text/plain')
+    return HttpResponse('ok', content_type='text/plain')
