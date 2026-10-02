@@ -73,13 +73,24 @@
         {% endif %}
       </div>
       <div>
-        <p class="pie__titulo">Nuestra red de webs</p>
-        <ul class="pie__lista">
-          <li><a href="{% url 'nichos:portada' %}">Todas las webs</a></li>
-          {% for s in red_sitios %}
-            <li><a href="{% url 'nichos:inicio' s.slug %}">{{ s.icono }} {{ s.nombre }}</a></li>
-          {% endfor %}
-        </ul>
+        {% if estatico_independiente and sitio %}
+          {# Cada web publicada por separado solo enlaza a sus propias secciones #}
+          <p class="pie__titulo">Secciones</p>
+          <ul class="pie__lista">
+            <li><a href="{% url 'nichos:blog' sitio.slug %}">Blog</a></li>
+            <li><a href="{% url 'nichos:comparativas' sitio.slug %}">Comparativas</a></li>
+            <li><a href="{% url 'nichos:tendencias' sitio.slug %}">Tendencias</a></li>
+            <li><a href="{% url 'nichos:productos' sitio.slug %}">Productos</a></li>
+          </ul>
+        {% else %}
+          <p class="pie__titulo">Nuestra red de webs</p>
+          <ul class="pie__lista">
+            <li><a href="{% url 'nichos:portada' %}">Todas las webs</a></li>
+            {% for s in red_sitios %}
+              <li><a href="{% url 'nichos:inicio' s.slug %}">{{ s.icono }} {{ s.nombre }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       </div>
       <div class="pie__aviso">
         <p class="pie__titulo">Transparencia</p>

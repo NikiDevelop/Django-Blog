@@ -98,9 +98,9 @@ El texto inicial está en `nichos/contenido/`, un módulo por web.
 
 Dos opciones, explicadas paso a paso en [DESPLIEGUE.md](DESPLIEGUE.md):
 
-- **HTML estático, en cualquier plan de hosting**: `python manage.py exportar_estatico --dominio https://midominio.com`
-  genera `publicar/webs-de-tendencias.zip` para subirlo al `public_html` de Hostinger. Los filtros y el buscador
-  funcionan en el navegador.
+- **HTML estático, en cualquier plan de hosting**: `python manage.py exportar_estatico --separadas --version-web 1`
+  genera una carpeta y un .zip por web (`IA Facil v.1`…) para subirlos al `public_html` de Hostinger. Sin
+  `--separadas`, genera las 5 juntas con una portada. Los filtros y el buscador funcionan en el navegador.
 - **Django en un VPS de Hostinger**: un solo comando de instalación con HTTPS, copias de seguridad y actualizaciones
   con vuelta atrás automática.
 

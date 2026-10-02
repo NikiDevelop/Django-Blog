@@ -176,6 +176,24 @@ class EtiquetasTests(TestCase):
         self.assertEqual(plantilla.render(Context({'nota': None})), '0')
 
 
+def enlaces_rotos(raiz):
+    """Enlaces internos de los HTML exportados que no llevan a ningún archivo."""
+    rotos = []
+    for html in raiz.rglob('*.html'):
+        pagina = '/' + html.parent.relative_to(raiz).as_posix().strip('.') + '/'
+        for url in re.findall(r'(?:href|src|action)="([^"]*)"', html.read_text(encoding='utf-8')):
+            if not url or re.match(r'^(https?:|data:|mailto:|#|\?)', url):
+                continue
+            ruta = re.split(r'[?#]', url)[0]
+            destino = posixpath.normpath(ruta if html.name == '404.html' else posixpath.join(pagina, ruta))
+            archivo = raiz / unquote(destino).lstrip('/')
+            if archivo.is_dir():
+                archivo /= 'index.html'
+            if not archivo.exists():
+                rotos.append(f'{html.relative_to(raiz)} -> {url}')
+    return rotos
+
+
 class RutasTests(TestCase):
     def test_ruta_relativa(self):
         self.assertEqual(ruta_relativa('/ia-facil/', '/ia-facil/blog/x/'), '../../')
@@ -211,20 +229,7 @@ class ExportacionTests(TestCase):
             self.assertTrue((self.raiz / archivo).exists(), archivo)
 
     def test_ningun_enlace_interno_roto(self):
-        rotos = []
-        for html in self.raiz.rglob('*.html'):
-            pagina = '/' + html.parent.relative_to(self.raiz).as_posix().strip('.') + '/'
-            for url in re.findall(r'(?:href|src|action)="([^"]*)"', html.read_text(encoding='utf-8')):
-                if not url or re.match(r'^(https?:|data:|mailto:|#|\?)', url):
-                    continue
-                ruta = re.split(r'[?#]', url)[0]
-                destino = posixpath.normpath(ruta if html.name == '404.html' else posixpath.join(pagina, ruta))
-                archivo = self.raiz / unquote(destino).lstrip('/')
-                if archivo.is_dir():
-                    archivo /= 'index.html'
-                if not archivo.exists():
-                    rotos.append(f'{html.relative_to(self.raiz)} -> {url}')
-        self.assertEqual(rotos, [])
+        self.assertEqual(enlaces_rotos(self.raiz), [])
 
     def test_enlaces_relativos_y_sin_restos_del_servidor(self):
         articulo = self.leer('ia-facil/blog/como-hacer-fotos-con-ia/index.html')
@@ -259,3 +264,64 @@ class ExportacionTests(TestCase):
         respuesta = self.client.get(reverse('nichos:buscar', args=['bolsillo-listo']))
         self.assertNotContains(respuesta, 'indice-busqueda')
         self.assertNotContains(respuesta, 'estatico.js')
+
+
+class ExportacionSeparadaTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cargar_contenido()
+
+    def setUp(self):
+        self.carpeta = tempfile.TemporaryDirectory()
+        self.raiz = Path(self.carpeta.name) / 'IA Facil v.1'
+        self.sitio = Sitio.objects.get(slug='ia-facil')
+        self.exportacion = Exportacion(self.raiz, sitio=self.sitio).ejecutar()
+
+    def tearDown(self):
+        self.carpeta.cleanup()
+
+    def test_la_web_queda_en_la_raiz(self):
+        self.assertIn('<title>IA Fácil', (self.raiz / 'index.html').read_text(encoding='utf-8'))
+        self.assertTrue((self.raiz / 'blog/como-hacer-fotos-con-ia/index.html').exists())
+        self.assertFalse((self.raiz / 'vida-longeva').exists())
+        self.assertEqual(len(self.exportacion.paginas),
+                         6 + self.sitio.articulos.count() + self.sitio.comparativas.count() + self.sitio.productos.count())
+
+    def test_sin_enlaces_rotos_ni_a_otras_webs(self):
+        self.assertEqual(enlaces_rotos(self.raiz), [])
+        inicio = (self.raiz / 'index.html').read_text(encoding='utf-8')
+        self.assertNotIn('Vida Longeva', inicio)
+        self.assertNotIn('Nuestra red de webs', inicio)
+        self.assertIn('Secciones', inicio)
+
+    def test_404_con_la_marca_de_la_web(self):
+        pagina = (self.raiz / '404.html').read_text(encoding='utf-8')
+        self.assertIn('Volver a IA Fácil', pagina)
+        self.assertIn('href="/blog/"', pagina)
+        self.assertNotIn('Ver todas las webs', pagina)
+
+    def test_comando_crea_carpetas_y_zips_con_version(self):
+        from django.core.management import call_command
+        from io import StringIO
+        call_command('exportar_estatico', '--separadas', '--version-web', 'v.2', '--salida', self.carpeta.name,
+                     stdout=StringIO())
+        carpeta = Path(self.carpeta.name) / 'Webs v.2'
+        for nombre in ('IA Facil', 'Vida Longeva', 'Bolsillo Listo', 'Casa Autonoma', 'Piel y Estilo'):
+            self.assertTrue((carpeta / f'{nombre} v.2' / 'index.html').exists(), nombre)
+            self.assertTrue((carpeta / f'{nombre} v.2.zip').exists(), nombre)
+
+
+class Pagina404Tests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cargar_contenido()
+
+    def test_404_dentro_de_una_web_mantiene_su_diseno(self):
+        respuesta = self.client.get('/webs/casa-autonoma/no-existe/')
+        self.assertContains(respuesta, 'Volver a Casa Autónoma', status_code=404)
+        self.assertContains(respuesta, 'Ver todas las webs', status_code=404)
+
+    def test_404_fuera_de_las_webs(self):
+        respuesta = self.client.get('/no-existe-nada/')
+        self.assertContains(respuesta, 'Esta página no existe', status_code=404)
+        self.assertNotContains(respuesta, 'Volver a', status_code=404)

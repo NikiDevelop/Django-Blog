@@ -199,6 +199,16 @@ def _indice_busqueda(sitio, desde):
     return indice
 
 
+def pagina_no_encontrada(request, exception):
+    # Dentro de una web (/webs/<web>/...), el 404 mantiene su diseño y su menú
+    sitio = None
+    prefijo = reverse('nichos:portada')
+    if request.path.startswith(prefijo):
+        slug = request.path[len(prefijo):].split('/', 1)[0]
+        sitio = Sitio.objects.filter(slug=slug, activo=True).first() if slug else None
+    return render(request, '404.html', {'sitio': sitio}, status=404)
+
+
 def robots_txt(request):
     lineas = [
         'User-agent: *',

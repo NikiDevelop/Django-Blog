@@ -9,4 +9,6 @@ def red_sitios(request):
         'red_sitios': Sitio.objects.filter(activo=True),
         # True mientras se genera la versión en HTML estático (ver exportar_estatico)
         'estatico': getattr(settings, 'NICHOS_ESTATICO', False),
+        # True si cada web se exporta como un sitio independiente, sin enlaces a las demás
+        'estatico_independiente': getattr(settings, 'NICHOS_ESTATICO_INDEPENDIENTE', False),
     }

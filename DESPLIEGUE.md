@@ -15,22 +15,38 @@ Si tus otras webs son archivos HTML subidos al hosting, la **opción A** es la m
 
 # Opción A: webs en HTML estático
 
-## 1. Genera el .zip
+## 1. Genera las webs
+
+**Cada web por separado** (una carpeta y un .zip por web, con su versión en el nombre):
+
+```
+python manage.py exportar_estatico --separadas --version-web 1
+```
+
+Crea en `publicar/Webs v.1/` las carpetas `IA Facil v.1`, `Vida Longeva v.1`, `Bolsillo Listo v.1`,
+`Casa Autonoma v.1` y `Piel y Estilo v.1`, cada una con su `.zip`. Cada web es independiente: su inicio está en la
+raíz y no enlaza a las demás, así que puede ir en su propio sitio de Hostinger (con dominio propio o temporal).
+Para una nueva versión, usa `--version-web 2`.
+
+Para guardarlas en `C:\Users\Niki0\Desktop\Emprendimiento\Webs`, copia ahí los .zip y en cada uno elige
+**Extraer todo**: Windows crea la carpeta `IA Facil v.1` con la web dentro.
+
+**Todas juntas en un solo sitio** (portada con las 5 webs y cada una en su carpeta):
 
 ```
 python manage.py exportar_estatico --dominio https://midominio.com
 ```
 
-Crea `publicar/webs-de-tendencias.zip`. Contiene la portada con las 5 webs en la raíz y cada web en su carpeta
-(`/ia-facil/`, `/vida-longeva/`…). El `--dominio` es opcional, pero con él se generan `sitemap.xml`, `robots.txt`
-y los enlaces canónicos para Google.
+Crea `publicar/webs-de-tendencias.zip`. El `--dominio` es opcional, pero con él se generan `sitemap.xml`,
+`robots.txt` y los enlaces canónicos para Google.
 
 ## 2. Súbelo a Hostinger
 
 1. En hPanel → **Sitios web** → tu sitio → **Administrador de archivos**, entra en `public_html`.
 2. Si hay un `default.php` o un `index.php` de bienvenida, bórralo.
-3. Sube `webs-de-tendencias.zip`, haz clic derecho sobre él → **Extraer** y elige `public_html` como destino.
-   Los archivos deben quedar directamente en `public_html` (`index.html`, `ia-facil/`, `static/`…).
+3. Sube el .zip de la web (por ejemplo `IA Facil v.1.zip`), haz clic derecho sobre él → **Extraer** y elige
+   `public_html` como destino. Los archivos deben quedar directamente en `public_html` (`index.html`, `blog/`,
+   `static/`…).
 4. Borra el .zip una vez extraído.
 
 También puedes extraerlo en una subcarpeta (por ejemplo `public_html/webs/`): todo funcionará en
@@ -43,7 +59,7 @@ En hPanel → **Seguridad** → **SSL**, instala el certificado gratuito si no l
 ## 4. Para cambiar el contenido
 
 1. En tu ordenador: `python manage.py runserver` y edita en `http://127.0.0.1:8000/admin/`.
-2. Vuelve a generar el .zip con `exportar_estatico`.
+2. Vuelve a generar las webs con `exportar_estatico` (sube el número de versión).
 3. Súbelo y extráelo de nuevo en `public_html`, sobrescribiendo los archivos.
 
 ---

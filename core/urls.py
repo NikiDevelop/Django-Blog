@@ -26,3 +26,5 @@ urlpatterns = [
     path('categoria/<int:pk>/', include('blog.urls', namespace='categoria')),
     
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = 'nichos.views.pagina_no_encontrada'

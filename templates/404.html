@@ -9,7 +9,12 @@
     <h1>Esta página no existe</h1>
     <p class="heroe__texto">Puede que el enlace esté mal escrito o que el contenido se haya movido.</p>
     <div class="botones">
-      <a class="boton boton--claro" href="{% url 'nichos:portada' %}">Ver todas las webs</a>
+      {% if sitio %}
+        <a class="boton boton--claro" href="{% url 'nichos:inicio' sitio.slug %}">Volver a {{ sitio.nombre }}</a>
+      {% endif %}
+      {% if not estatico_independiente %}
+        <a class="boton {% if sitio %}boton--contorno{% else %}boton--claro{% endif %}" href="{% url 'nichos:portada' %}">Ver todas las webs</a>
+      {% endif %}
     </div>
   </div>
 </section>
