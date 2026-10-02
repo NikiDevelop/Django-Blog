@@ -1,12 +1,15 @@
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import DatabaseError, connection
 from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.html import strip_tags
 from django.views.decorators.cache import never_cache
 
 from .models import Articulo, Comparativa, Producto, Sitio, Tendencia
+from .rutas import ruta_relativa
 
 
 def _sitio(slug):
@@ -54,7 +57,7 @@ def blog(request, sitio):
             Q(titulo__icontains=buscar) | Q(resumen__icontains=buscar) | Q(contenido__icontains=buscar)
         )
 
-    paginator = Paginator(articulos, 9)
+    paginator = Paginator(articulos, getattr(settings, 'NICHOS_POR_PAGINA', 9))
     articulos = paginator.get_page(request.GET.get('page'))
     return render(request, 'nichos/blog.html', {
         'sitio': sitio,
@@ -156,12 +159,44 @@ def buscar(request, sitio):
                 Q(nombre__icontains=q) | Q(descripcion__icontains=q)),
         }
     total = sum(len(r) for r in resultados.values())
-    return render(request, 'nichos/buscar.html', {
+    contexto = {
         'sitio': sitio,
         'q': q,
         'resultados': resultados,
         'total': total,
-    })
+    }
+    if getattr(settings, 'NICHOS_ESTATICO', False):
+        contexto['indice_busqueda'] = _indice_busqueda(sitio, request.path)
+    return render(request, 'nichos/buscar.html', contexto)
+
+
+def _indice_busqueda(sitio, desde):
+    # En la versión estática no hay servidor: el navegador busca sobre este índice.
+    # Las URL son relativas a la página del buscador para que funcionen en cualquier carpeta.
+    def elemento(tipo, icono, titulo, resumen, url, texto=''):
+        return {'tipo': tipo, 'icono': icono or sitio.icono, 'titulo': titulo,
+                'resumen': resumen, 'url': ruta_relativa(url, desde), 'texto': texto}
+
+    indice = [
+        elemento('Artículo', a.icono, a.titulo, a.resumen, a.get_absolute_url(), strip_tags(a.contenido))
+        for a in sitio.articulos.filter(publicado=True)
+    ]
+    indice += [
+        elemento('Comparativa', c.icono, c.titulo, c.resumen, c.get_absolute_url(),
+                 ' '.join(c.columnas) + ' ' + strip_tags(c.introduccion + c.veredicto))
+        for c in sitio.comparativas.filter(publicado=True)
+    ]
+    indice += [
+        elemento('Producto', p.icono, p.nombre, p.resumen, p.get_absolute_url(),
+                 f'{p.marca} {p.categoria} {strip_tags(p.contenido)}')
+        for p in sitio.productos.filter(publicado=True)
+    ]
+    url_tendencias = reverse('nichos:tendencias', args=[sitio.slug])
+    indice += [
+        elemento('Tendencia', t.icono, t.nombre, strip_tags(t.descripcion), url_tendencias, t.dato)
+        for t in sitio.tendencias.all()
+    ]
+    return indice
 
 
 def robots_txt(request):

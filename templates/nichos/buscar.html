@@ -61,5 +61,13 @@
 
     {% if not total %}<p>No hemos encontrado nada. Prueba con otra palabra.</p>{% endif %}
   {% endif %}
+
+  {% if estatico %}
+    {# Versión estática: estatico.js busca en este índice y pinta los resultados #}
+    <p class="meta" id="busqueda-total" hidden></p>
+    <div class="rejilla rejilla--3" id="busqueda-resultados"></div>
+    <p id="busqueda-vacia" hidden>No hemos encontrado nada. Prueba con otra palabra.</p>
+    {{ indice_busqueda|json_script:"indice-busqueda" }}
+  {% endif %}
 </section>
 {% endblock cuerpo %}

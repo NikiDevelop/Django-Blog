@@ -1,5 +1,55 @@
 # Publicar en Hostinger
 
+Hay dos formas de poner las 5 webs en internet:
+
+| | Opción A: webs en HTML estático | Opción B: Django en un VPS |
+|---|---|---|
+| Plan de Hostinger | Cualquiera (hosting web, Cloud o VPS) | Solo VPS |
+| Cómo se sube | Un .zip al Administrador de archivos | Un comando en el terminal del VPS |
+| Editar contenido | En el admin de Django en tu ordenador, y vuelves a subir el .zip | En el admin, directamente online |
+| Buscador y filtros | Funcionan en el navegador | Funcionan en el servidor |
+
+Si tus otras webs son archivos HTML subidos al hosting, la **opción A** es la misma forma de trabajar.
+
+---
+
+# Opción A: webs en HTML estático
+
+## 1. Genera el .zip
+
+```
+python manage.py exportar_estatico --dominio https://midominio.com
+```
+
+Crea `publicar/webs-de-tendencias.zip`. Contiene la portada con las 5 webs en la raíz y cada web en su carpeta
+(`/ia-facil/`, `/vida-longeva/`…). El `--dominio` es opcional, pero con él se generan `sitemap.xml`, `robots.txt`
+y los enlaces canónicos para Google.
+
+## 2. Súbelo a Hostinger
+
+1. En hPanel → **Sitios web** → tu sitio → **Administrador de archivos**, entra en `public_html`.
+2. Si hay un `default.php` o un `index.php` de bienvenida, bórralo.
+3. Sube `webs-de-tendencias.zip`, haz clic derecho sobre él → **Extraer** y elige `public_html` como destino.
+   Los archivos deben quedar directamente en `public_html` (`index.html`, `ia-facil/`, `static/`…).
+4. Borra el .zip una vez extraído.
+
+También puedes extraerlo en una subcarpeta (por ejemplo `public_html/webs/`): todo funcionará en
+`midominio.com/webs/` salvo la página de error 404 personalizada, que necesita estar en la raíz.
+
+## 3. Activa HTTPS
+
+En hPanel → **Seguridad** → **SSL**, instala el certificado gratuito si no lo está y activa **Forzar HTTPS**.
+
+## 4. Para cambiar el contenido
+
+1. En tu ordenador: `python manage.py runserver` y edita en `http://127.0.0.1:8000/admin/`.
+2. Vuelve a generar el .zip con `exportar_estatico`.
+3. Súbelo y extráelo de nuevo en `public_html`, sobrescribiendo los archivos.
+
+---
+
+# Opción B: Django en un VPS
+
 Guía para poner en internet el blog y las 5 webs de tendencias en un VPS de Hostinger.
 
 ## 1. Qué plan necesitas

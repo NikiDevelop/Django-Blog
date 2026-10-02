@@ -1,4 +1,4 @@
-<article class="tarjeta">
+<article class="tarjeta" data-categoria="{{ articulo.categoria }}">
   <a class="tarjeta__portada" href="{{ articulo.get_absolute_url }}" tabindex="-1" aria-hidden="true">
     <span>{{ articulo.icono|default:sitio.icono }}</span>
   </a>

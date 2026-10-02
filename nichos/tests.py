@@ -1,4 +1,10 @@
+import json
+import posixpath
+import re
+import tempfile
 from importlib import import_module
+from pathlib import Path
+from urllib.parse import unquote
 
 from django.template import Context, Template
 from django.test import RequestFactory, TestCase
@@ -6,6 +12,8 @@ from django.urls import reverse
 
 from .carga import cargar_contenido
 from .contenido import MODULOS
+from .exportar import Exportacion
+from .rutas import ruta_relativa
 from .models import Articulo, Comparativa, Producto, Sitio, Tendencia
 
 
@@ -166,3 +174,88 @@ class EtiquetasTests(TestCase):
         plantilla = Template('{% load nichos_extras %}{{ nota|porcentaje }}')
         self.assertEqual(plantilla.render(Context({'nota': '8.7'})), '87')
         self.assertEqual(plantilla.render(Context({'nota': None})), '0')
+
+
+class RutasTests(TestCase):
+    def test_ruta_relativa(self):
+        self.assertEqual(ruta_relativa('/ia-facil/', '/ia-facil/blog/x/'), '../../')
+        self.assertEqual(ruta_relativa('/ia-facil/blog/', '/ia-facil/blog/'), './')
+        self.assertEqual(ruta_relativa('/static/a.css', '/'), 'static/a.css')
+        self.assertEqual(ruta_relativa('/a/b/?x=1', '/a/c/'), '../b/?x=1')
+        self.assertEqual(ruta_relativa('/a/#ancla', '/a/b/'), '../#ancla')
+
+
+class ExportacionTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cargar_contenido()
+
+    def setUp(self):
+        self.carpeta = tempfile.TemporaryDirectory()
+        self.raiz = Path(self.carpeta.name) / 'web'
+        self.exportacion = Exportacion(self.raiz, 'https://midominio.com/').ejecutar()
+
+    def tearDown(self):
+        self.carpeta.cleanup()
+
+    def leer(self, ruta):
+        return (self.raiz / ruta).read_text(encoding='utf-8')
+
+    def test_genera_todas_las_paginas(self):
+        esperadas = 1 + sum(6 + s.articulos.count() + s.comparativas.count() + s.productos.count()
+                            for s in Sitio.objects.all())
+        self.assertEqual(len(self.exportacion.paginas), esperadas)
+        self.assertTrue((self.raiz / 'index.html').exists())
+        self.assertTrue((self.raiz / 'ia-facil/blog/como-hacer-fotos-con-ia/index.html').exists())
+        for archivo in ('404.html', '.htaccess', 'static/nichos/css/nichos.css', 'static/nichos/js/estatico.js'):
+            self.assertTrue((self.raiz / archivo).exists(), archivo)
+
+    def test_ningun_enlace_interno_roto(self):
+        rotos = []
+        for html in self.raiz.rglob('*.html'):
+            pagina = '/' + html.parent.relative_to(self.raiz).as_posix().strip('.') + '/'
+            for url in re.findall(r'(?:href|src|action)="([^"]*)"', html.read_text(encoding='utf-8')):
+                if not url or re.match(r'^(https?:|data:|mailto:|#|\?)', url):
+                    continue
+                ruta = re.split(r'[?#]', url)[0]
+                destino = posixpath.normpath(ruta if html.name == '404.html' else posixpath.join(pagina, ruta))
+                archivo = self.raiz / unquote(destino).lstrip('/')
+                if archivo.is_dir():
+                    archivo /= 'index.html'
+                if not archivo.exists():
+                    rotos.append(f'{html.relative_to(self.raiz)} -> {url}')
+        self.assertEqual(rotos, [])
+
+    def test_enlaces_relativos_y_sin_restos_del_servidor(self):
+        articulo = self.leer('ia-facil/blog/como-hacer-fotos-con-ia/index.html')
+        self.assertIn('href="../../../static/nichos/css/nichos.css"', articulo)
+        self.assertIn('<script src="../../../static/nichos/js/estatico.js"', articulo)
+        self.assertNotIn('testserver', articulo)
+        self.assertNotIn('href="/webs/', articulo)
+
+    def test_canonical_sitemap_y_robots_con_dominio(self):
+        self.assertIn('<link rel="canonical" href="https://midominio.com/ia-facil/">', self.leer('ia-facil/index.html'))
+        sitemap = self.leer('sitemap.xml')
+        self.assertIn('<loc>https://midominio.com/ia-facil/blog/como-hacer-fotos-con-ia/</loc>', sitemap)
+        self.assertNotIn('/buscar/', sitemap)
+        self.assertIn('Sitemap: https://midominio.com/sitemap.xml', self.leer('robots.txt'))
+
+    def test_pagina_404_con_enlaces_desde_la_raiz(self):
+        pagina = self.leer('404.html')
+        self.assertIn('Esta página no existe', pagina)
+        self.assertIn('href="/static/nichos/css/nichos.css"', pagina)
+        self.assertNotIn('rel="canonical"', pagina)
+
+    def test_buscador_estatico_con_indice_relativo(self):
+        pagina = self.leer('bolsillo-listo/buscar/index.html')
+        indice = json.loads(re.search(r'<script id="indice-busqueda" type="application/json">(.*?)</script>',
+                                      pagina, re.S).group(1))
+        urls = {e['titulo']: e['url'] for e in indice}
+        self.assertEqual(urls['Amortizar hipoteca: ¿reducir plazo o cuota? Ejemplo con números'],
+                         '../blog/amortizar-plazo-o-cuota/')
+        self.assertTrue(all(e['url'].startswith('../') for e in indice))
+
+    def test_la_version_django_no_cambia(self):
+        respuesta = self.client.get(reverse('nichos:buscar', args=['bolsillo-listo']))
+        self.assertNotContains(respuesta, 'indice-busqueda')
+        self.assertNotContains(respuesta, 'estatico.js')

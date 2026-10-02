@@ -1,4 +1,4 @@
-<article class="tendencia">
+<article class="tendencia" data-estado="{{ tendencia.estado }}">
   <div class="tendencia__cabecera">
     <span class="tendencia__icono" aria-hidden="true">{{ tendencia.icono|default:sitio.icono }}</span>
     <span class="estado estado--{{ tendencia.estado }}">{{ tendencia.get_estado_display }}</span>

@@ -9,7 +9,7 @@
   <div class="contenedor">
     <p class="antetitulo">Blog</p>
     <h1>Guías y artículos de {{ sitio.nicho|lower }}</h1>
-    <form class="buscador buscador--grande" method="get" role="search">
+    <form class="buscador buscador--grande" method="get" role="search"{% if estatico %} action="{% url 'nichos:buscar' sitio.slug %}"{% endif %}>
       <label class="oculto" for="q-blog">Buscar en el blog</label>
       <input id="q-blog" type="search" name="q" placeholder="Buscar en el blog…" value="{{ buscar }}">
       {% if categoria %}<input type="hidden" name="categoria" value="{{ categoria }}">{% endif %}

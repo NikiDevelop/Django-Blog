@@ -96,8 +96,13 @@ El texto inicial está en `nichos/contenido/`, un módulo por web.
 
 ### Publicar en internet
 
-La guía completa para Hostinger (VPS con Ubuntu 24.04, un solo comando de instalación, HTTPS, copias de seguridad y
-actualizaciones con vuelta atrás automática) está en [DESPLIEGUE.md](DESPLIEGUE.md).
+Dos opciones, explicadas paso a paso en [DESPLIEGUE.md](DESPLIEGUE.md):
+
+- **HTML estático, en cualquier plan de hosting**: `python manage.py exportar_estatico --dominio https://midominio.com`
+  genera `publicar/webs-de-tendencias.zip` para subirlo al `public_html` de Hostinger. Los filtros y el buscador
+  funcionan en el navegador.
+- **Django en un VPS de Hostinger**: un solo comando de instalación con HTTPS, copias de seguridad y actualizaciones
+  con vuelta atrás automática.
 
 En producción la configuración se lee de un fichero `.env` (ver `.env.example`). Sin él, el proyecto arranca en
 modo desarrollo como siempre.

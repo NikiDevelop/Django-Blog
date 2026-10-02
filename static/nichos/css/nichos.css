@@ -49,6 +49,9 @@ body {
 
 img { max-width: 100%; height: auto; }
 
+/* Las tarjetas usan display: flex, que anularía el atributo hidden de los filtros */
+[hidden] { display: none !important; }
+
 a { color: var(--primario); text-decoration-thickness: 1px; text-underline-offset: 3px; }
 a:hover { text-decoration-thickness: 2px; }
 

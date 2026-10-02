@@ -18,6 +18,7 @@
   <style>:root { --primario: {{ sitio.color_primario }}; --secundario: {{ sitio.color_secundario }}; }</style>
   {% endif %}
   {% block cabecera_extra %}{% endblock cabecera_extra %}
+  {% if estatico %}<script src="{% static 'nichos/js/estatico.js' %}" defer></script>{% endif %}
 </head>
 <body>
   <a class="saltar" href="#contenido">Saltar al contenido</a>

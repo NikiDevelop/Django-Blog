@@ -1,4 +1,4 @@
-{% load nichos_extras %}<article class="tarjeta tarjeta--producto">
+{% load nichos_extras %}<article class="tarjeta tarjeta--producto" data-categoria="{{ producto.categoria }}">
   <div class="tarjeta__cuerpo">
     <div class="producto__cabecera">
       <span class="producto__icono" aria-hidden="true">{{ producto.icono|default:sitio.icono }}</span>
