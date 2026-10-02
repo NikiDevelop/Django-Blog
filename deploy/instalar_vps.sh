@@ -196,7 +196,7 @@ configurar_cortafuegos() {
     paso "Configurando el cortafuegos"
     local puerto_ssh
     # Abrimos el puerto SSH real antes de activar ufw para no quedarnos fuera
-    puerto_ssh="$(sshd -T 2>/dev/null | awk '$1 == "port" {print $2; exit}')"
+    puerto_ssh="$(sshd -T 2>/dev/null | awk '$1 == "port" {print $2; exit}' || true)"
     ufw allow "${puerto_ssh:-22}/tcp" >/dev/null
     ufw allow 'Nginx Full' >/dev/null
     ufw --force enable >/dev/null
