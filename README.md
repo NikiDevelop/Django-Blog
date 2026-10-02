@@ -66,13 +66,15 @@ Las fuentes de cada dato aparecen en la portada de cada web, en el apartado «Po
 
 ### Cargar las webs
 
-Después de `migrate`, carga el contenido inicial (se puede repetir: actualiza sin duplicar):
+Después de `migrate`, carga el contenido inicial:
 
 ```
 $ python manage.py cargar_nichos
 ```
 
 También puedes cargar solo algunas webs: `python manage.py cargar_nichos ia-facil casa-autonoma`.
+Repetirlo no duplica nada, pero restablece el texto original y **sobrescribe lo que hayas editado en el admin** en
+esos mismos elementos.
 
 ### Dónde verlas
 
@@ -91,6 +93,14 @@ El texto inicial está en `nichos/contenido/`, un módulo por web.
 - Revisa precios y especificaciones: son orientativos a octubre de 2026 y cambian a menudo.
 - Las valoraciones de productos son editoriales, basadas en especificaciones. Si pruebas los productos, actualízalas.
 - Para publicar cada web en su propio dominio, redirige la raíz de ese dominio a `/webs/<web>/` desde tu servidor web o proxy.
+
+### Publicar en internet
+
+La guía completa para Hostinger (VPS con Ubuntu 24.04, un solo comando de instalación, HTTPS, copias de seguridad y
+actualizaciones con vuelta atrás automática) está en [DESPLIEGUE.md](DESPLIEGUE.md).
+
+En producción la configuración se lee de un fichero `.env` (ver `.env.example`). Sin él, el proyecto arranca en
+modo desarrollo como siempre.
 
 ### Tests
 
