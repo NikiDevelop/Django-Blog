@@ -15,12 +15,13 @@ paso() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 como_app() { sudo -u "$APP_USER" -H "$@"; }
 manage() { como_app "$APP_DIR/venv/bin/python" "$APP_DIR/manage.py" "$@"; }
 
+# Encadenado con && para que cualquier fallo llegue a main() y se pueda volver atrás
 desplegar_version() {
-    como_app git -C "$APP_DIR" checkout --quiet -B "$1" "$2"
-    como_app "$APP_DIR/venv/bin/pip" install --quiet -r "$APP_DIR/requirements.txt"
-    manage migrate --noinput
-    manage collectstatic --noinput --verbosity 0
-    systemctl restart "$SERVICIO"
+    como_app git -C "$APP_DIR" checkout --quiet -B "$1" "$2" &&
+        como_app "$APP_DIR/venv/bin/pip" install --quiet -r "$APP_DIR/requirements.txt" &&
+        manage migrate --noinput &&
+        manage collectstatic --noinput --verbosity 0 &&
+        systemctl restart "$SERVICIO"
 }
 
 responde() {
@@ -50,13 +51,16 @@ main() {
     fi
 
     paso "Instalando la nueva versión"
-    desplegar_version "$rama" "origin/$rama"
-
-    if responde; then
+    if desplegar_version "$rama" "origin/$rama" && responde; then
         paso "Actualización completada: $(como_app git -C "$APP_DIR" log -1 --format='%h %s')"
     else
-        paso "La web no responde: volviendo a la versión anterior (${anterior:0:7})"
-        desplegar_version "$rama" "$anterior"
+        paso "La actualización ha fallado: volviendo a la versión anterior (${anterior:0:7})"
+        desplegar_version "$rama" "$anterior" || true
+        if responde; then
+            echo "    La web vuelve a funcionar con la versión anterior."
+        else
+            echo "    ¡Atención! La web sigue sin responder."
+        fi
         echo "    Revisa los registros con: journalctl -u $SERVICIO -n 50"
         echo "    Si la base de datos quedó dañada, restaura la última copia de $BACKUPS"
         exit 1
